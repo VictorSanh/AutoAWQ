@@ -2,8 +2,8 @@ import torch
 from awq import AutoAWQForCausalLM
 from transformers import AutoTokenizer, AutoProcessor, AwqConfig
 
-model_path = "HuggingFaceM4/idefics2"
-quant_path = "/admin/home/victor/code/idefics2-awq"
+model_path = "/fsx/m4/victor/idefics2-tfrm-compatible"
+quant_path = "/fsx/m4/victor/idefics2-tfrm-compatible-AWQ"
 
 quant_config = {"zero_point": True, "q_group_size": 128, "w_bit": 4, "version":"GEMM"}
 

@@ -3,13 +3,13 @@ from typing import List, Tuple
 from .base import BaseAWQForCausalLM
 from awq.utils.fused_utils import fuse_qkv
 from awq.modules.fused.block import LlamaLikeBlock
-from awq.modules.fused.model import LlamaLikeModel #IdeficsLikeModel
+from awq.modules.fused.model import LlamaLikeModel
 from transformers.models.llama.modeling_llama import (
     LlamaDecoderLayer as OldLlamaDecoderLayer,
 )
-# from transformers.models.llava.modeling_llava import (
-#     LlavaForConditionalGeneration as OldLlavaForConditionalGeneration,
-# )
+from transformers.models.llava.modeling_llava import (
+    LlavaForConditionalGeneration as OldLlavaForConditionalGeneration,
+)
 from awq.modules.fused.norm import FasterTransformerRMSNorm
 
 
@@ -24,7 +24,7 @@ class Idefics2AWQForCausalLM(BaseAWQForCausalLM):
 
     @staticmethod
     def get_model_layers(model):
-        return model.model.layers
+        return model.model.text_model.layers
 
     @staticmethod
     def get_act_for_scaling(module: OldLlamaDecoderLayer):
@@ -32,7 +32,7 @@ class Idefics2AWQForCausalLM(BaseAWQForCausalLM):
 
     @staticmethod
     def move_embed(model, device: str):
-        model.model.embed_tokens = model.get_input_embeddings().to(
+        model.model.text_model.embed_tokens = model.get_input_embeddings().to(
             device
         )
 
@@ -90,7 +90,7 @@ class Idefics2AWQForCausalLM(BaseAWQForCausalLM):
 
 class Idefics2Fuser:
     def __init__(self, model):
-        self.model = model
+        self.model = model.model.text_model
 
         self.llama_blocks: List[Tuple[str, OldLlamaDecoderLayer]] = [
             (name, module)
@@ -138,13 +138,4 @@ class Idefics2Fuser:
             self.model.model.embed_tokens,
             self.model.model.norm,
         )
-        # self.model.model = IdeficsLikeModel(
-        #     vocab_size=self.model.config.vocab_size,
-        #     blocks=blocks,
-        #     embedding=self.model.model.embed_tokens,
-        #     norm=self.model.model.norm,
-        #     vision_model=self.model.vision_model,
-        #     modality_projection=self.model.odality_projection,
-        #     perceiver_resampler=self.model.perceiver_resampler,
-        # )
         setattr(self.model.model, "blocks", self.model.model.blocks)
