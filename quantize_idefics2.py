@@ -2,8 +2,9 @@ import torch
 from awq import AutoAWQForCausalLM
 from transformers import AutoTokenizer, AutoProcessor, AwqConfig
 
-model_path = "/fsx/m4/victor/idefics2-tfrm-compatible"
-quant_path = "/fsx/m4/victor/idefics2-tfrm-compatible-AWQ"
+model_path = "/fsx/m4/victor/idefics2-8b-chatty"
+quant_path = "/fsx/m4/victor/idefics2-8b-chatty-AWQ"
+print(model_path, quant_path)
 
 quant_config = {"zero_point": True, "q_group_size": 128, "w_bit": 4, "version":"GEMM"}
 
